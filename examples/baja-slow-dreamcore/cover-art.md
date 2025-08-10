@@ -1,0 +1,2 @@
+# Album Cover — Text-to-Image Prompt
+square album cover; twilight desert coast, gentle waves kissing a sandy highway; lone motorcycle helmet resting on dune; hazy pink-gold sky, long shadows; style: watercolor cyberpunk blend; 35mm lens, rule of thirds; color palette: coral, midnight blue, sand; typography: clean sans title "BAJA SLOW DREAMCORE"; no text artifacts, symmetrical balance, print-ready.

@@ -1,0 +1,2 @@
+# Album Cover — Text-to-Image Prompt
+square album cover; rainy neon city street at night, reflections on wet asphalt; glowing skyline shapes like sound waves; lone figure with headphones mid-frame (silhouette), gentle backlight halo; cinematic moody lighting; 50mm lens, shallow depth; color palette: teal, magenta, amber; style: cinematic photo-illustration; clean sans title “CITY OF ECHOES”; no text glitches; print-ready.
