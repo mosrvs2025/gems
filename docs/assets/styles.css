@@ -64,6 +64,38 @@
   --shadow:        0 14px 34px -22px rgba(20,20,40,.45);
 }
 
+/* System-light viewers who never picked a theme: same tokens, applied only
+   when no explicit dark choice is stamped on the root. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+  
+    --bg:            #f6f5f2;
+    --bg-grad-a:     #fdfdfb;
+    --bg-grad-b:     #eeedf3;
+    --surface:       #ffffff;
+    --surface-2:     #f3f2f7;
+    --surface-3:     #e8e7ef;
+    --line:          #dedce7;
+    --line-soft:     #eceaf2;
+  
+    --text:          #16171f;
+    --text-dim:      #5d6076;
+    --text-faint:    #8a8da3;
+  
+    --teal:          #0d9e8c;
+    --magenta:       #c72e93;
+    --amber:         #b3701a;
+    --accent:        var(--teal);
+    --accent-ink:    #ffffff;
+  
+    --danger:        #c8303e;
+    --ok:            #17803d;
+    --shadow:        0 14px 34px -22px rgba(20,20,40,.45);
+  }
+}
+
+
 * { box-sizing: border-box; }
 
 /* Author rules beat the UA sheet regardless of specificity, so .btn's
@@ -391,6 +423,10 @@ pre.prompt i { color: var(--amber); font-style: normal; }
 .i-sun { display: none; }
 :root[data-theme="light"] .i-moon { display: none; }
 :root[data-theme="light"] .i-sun  { display: block; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .i-moon { display: none; }
+  :root:not([data-theme="dark"]) .i-sun  { display: block; }
+}
 
 @media (max-width: 720px) {
   .shell { padding: 0 14px 60px; }

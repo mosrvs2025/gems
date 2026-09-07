@@ -8,7 +8,10 @@
   "scripts": {
     "build": "node scripts/build-library.mjs",
     "check": "node scripts/build-library.mjs --check && node scripts/validate-packs.mjs",
-    "dev": "npm run build && node scripts/serve.mjs"
+    "dev": "npm run build && node scripts/serve.mjs",
+    "bundle": "node scripts/bundle.mjs"
   },
-  "engines": { "node": ">=18" }
+  "engines": {
+    "node": ">=18"
+  }
 }
