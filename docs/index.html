@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gem Studio — song prompt composer</title>
+<meta name="description" content="Compose, validate and export song-pack prompts for a Google Gem.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>💎</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<div class="shell">
+
+  <header class="topbar">
+    <a class="brand" href="#compose">
+      <span class="mark" aria-hidden="true">◈</span>
+      <span>
+        <b>Gem Studio</b><br>
+        <span>song-pack prompt composer</span>
+      </span>
+    </a>
+
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button role="tab" data-tab="compose" aria-selected="true">Compose</button>
+      <button role="tab" data-tab="decode"  aria-selected="false">Decode</button>
+      <button role="tab" data-tab="library" aria-selected="false">Library</button>
+      <button role="tab" data-tab="setup"   aria-selected="false">Gem&nbsp;setup</button>
+    </nav>
+
+    <button class="icon-btn" id="themeToggle" title="Toggle theme" aria-label="Toggle light and dark theme">
+      <svg class="i-moon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.6 6.6 0 0 0 10.5 10.5Z"/></svg>
+      <svg class="i-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </header>
+
+  <!-- ══ COMPOSE ══════════════════════════════════════════════════════════ -->
+  <section class="panel" id="panel-compose" data-active role="tabpanel" aria-label="Compose">
+    <div class="split">
+
+      <div>
+        <!-- Recipes -->
+        <div class="card">
+          <header>
+            <h2>Start from a recipe</h2>
+            <span class="spacer"></span>
+            <button class="btn small ghost" id="resetBtn">Reset</button>
+          </header>
+          <div class="body">
+            <div class="grid-cards" id="recipeGrid"></div>
+          </div>
+        </div>
+
+        <!-- Concept -->
+        <div class="card">
+          <header><h2>The song</h2></header>
+          <div class="body">
+            <div class="field">
+              <label for="concept">Concept
+                <span class="hint">What is this actually about?</span>
+              </label>
+              <textarea id="concept" rows="2" placeholder="e.g. a city that only speaks at night"></textarea>
+              <div class="btn-row" style="margin-top:8px">
+                <button class="btn small ghost" id="diceBtn" type="button">🎲 Surprise me</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="field-label">Genre <span class="hint">pick 1–3, they blend</span></span>
+              <div class="chips scroll" id="genreChips"></div>
+            </div>
+
+            <div class="field">
+              <span class="field-label">Mood <span class="hint">pick 1–3</span></span>
+              <div class="chips" id="moodChips"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sonic architecture -->
+        <div class="card">
+          <header><h2>Sonic architecture</h2></header>
+          <div class="body">
+            <div class="field">
+              <span class="field-label">Tempo</span>
+              <div class="tempo">
+                <span class="readout"><span id="bpmOut">96</span><small>BPM</small></span>
+                <span class="pulse" id="pulse" aria-hidden="true"></span>
+                <span class="zone" id="tempoZone"></span>
+                <span class="spacer" style="margin-left:auto"></span>
+                <button class="btn small ghost" id="tapBtn" type="button" title="Tap four times in time">Tap tempo</button>
+              </div>
+              <input type="range" id="bpm" min="50" max="180" step="1" value="96" aria-label="Tempo in BPM">
+            </div>
+
+            <div class="row three">
+              <div class="field">
+                <label for="key">Key</label>
+                <select id="key"></select>
+              </div>
+              <div class="field">
+                <label for="timeSignature">Time signature</label>
+                <select id="timeSignature"></select>
+              </div>
+              <div class="field">
+                <label for="arrangement">Arrangement</label>
+                <select id="arrangement"></select>
+              </div>
+            </div>
+            <p class="prose" style="margin:-8px 0 16px;font-size:12px" id="arrangementMap"></p>
+
+            <div class="field">
+              <span class="field-label">Core instruments <span class="hint" id="instrCount"></span></span>
+              <div class="chips scroll" id="instrumentChips"></div>
+            </div>
+
+            <div class="row two">
+              <div class="field">
+                <label for="vocalPlan">Lead vocal plan</label>
+                <select id="vocalPlan"></select>
+              </div>
+              <div class="field">
+                <label for="language">Language</label>
+                <select id="language"></select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cover art -->
+        <div class="card">
+          <header><h2>Cover art direction</h2></header>
+          <div class="body">
+            <div class="row three">
+              <div class="field">
+                <label for="artStyle">Style</label>
+                <select id="artStyle"></select>
+              </div>
+              <div class="field">
+                <label for="lens">Lens</label>
+                <select id="lens"></select>
+              </div>
+              <div class="field">
+                <label for="palette">Palette</label>
+                <select id="palette"></select>
+              </div>
+            </div>
+            <div class="chips" id="paletteSwatch" style="margin-top:-6px"></div>
+          </div>
+        </div>
+
+        <!-- Output control -->
+        <div class="card">
+          <header><h2>Output &amp; constraints</h2></header>
+          <div class="body">
+            <div class="field">
+              <span class="field-label">Files to return <span class="hint">deselect to iterate on one file</span></span>
+              <div class="chips" id="fileChips"></div>
+            </div>
+
+            <div class="field">
+              <span class="field-label">Constraints</span>
+              <div class="chips" id="flagChips"></div>
+            </div>
+
+            <div class="field">
+              <span class="field-label">House references <span class="hint">example packs to imitate</span></span>
+              <div class="chips" id="referenceChips"></div>
+            </div>
+
+            <div class="field">
+              <label for="extraNotes">Anything else
+                <span class="hint">free-form, appended verbatim</span>
+              </label>
+              <textarea id="extraNotes" rows="2" placeholder="e.g. no rhyming couplets in verse 2; mention the color red exactly once"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview rail -->
+      <div class="preview-wrap">
+        <div class="card">
+          <header>
+            <h2>Prompt</h2>
+            <span class="spacer"></span>
+            <button class="btn small primary" id="copyPromptBtn">Copy</button>
+          </header>
+          <div class="body">
+            <pre class="prompt" id="promptOut"></pre>
+            <div class="meter">
+              <span><b id="mWords">0</b> words</span>
+              <span><b id="mChars">0</b> chars</span>
+              <span><b id="mFiles">4</b> files requested</span>
+            </div>
+            <div class="btn-row" style="margin-top:14px">
+              <button class="btn small" id="downloadPromptBtn">Download .md</button>
+              <button class="btn small" id="shareBtn">Copy share link</button>
+              <button class="btn small ghost" id="toDecodeBtn">Paste result →</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <header><h2>Saved</h2><span class="spacer"></span>
+            <button class="btn small ghost" id="savePresetBtn">Save current</button>
+          </header>
+          <div class="body" id="presetList"></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ DECODE ═══════════════════════════════════════════════════════════ -->
+  <section class="panel" id="panel-decode" role="tabpanel" aria-label="Decode">
+    <div class="split">
+      <div class="card">
+        <header>
+          <h2>Paste the Gem's reply</h2>
+          <span class="spacer"></span>
+          <button class="btn small ghost" id="clearDecodeBtn">Clear</button>
+        </header>
+        <div class="body">
+          <p class="prose" style="margin-top:0">
+            Drop the whole response in — the <code>&lt;&lt;&lt;FILE:…&gt;&gt;&gt;</code> blocks get split into
+            files, checked against <code>/templates</code>, and turned into an
+            <code>examples/&lt;slug&gt;/</code> pack you can commit.
+          </p>
+          <textarea id="decodeIn" rows="20" spellcheck="false"
+            style="font-family:var(--mono);font-size:12.2px"
+            placeholder="<<<FILE:title.md>>>&#10;# Title&#10;City of Echoes&#10;<<<END FILE>>>&#10;…"></textarea>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <header><h2>Validation</h2><span class="spacer"></span><span class="tag" id="decodeScore">—</span></header>
+          <div class="body" id="decodeReport">
+            <div class="empty"><strong>Nothing pasted yet</strong>Parsed files and template checks appear here.</div>
+          </div>
+        </div>
+        <div class="card" id="decodeExportCard" hidden>
+          <header><h2>Export</h2></header>
+          <div class="body">
+            <div class="field">
+              <label for="slugIn">Folder slug</label>
+              <input type="text" id="slugIn" placeholder="city-of-echoes">
+            </div>
+            <div class="btn-row">
+              <button class="btn primary small" id="downloadPackBtn">Download 4 files</button>
+              <button class="btn small" id="copyShellBtn">Copy shell command</button>
+            </div>
+            <p class="prose" style="margin:12px 0 0;font-size:12px">
+              The shell command writes the pack straight into <code>examples/</code> in a
+              clone of this repo — more house references means more consistent output.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ LIBRARY ══════════════════════════════════════════════════════════ -->
+  <section class="panel" id="panel-library" role="tabpanel" aria-label="Library">
+    <div class="split">
+      <div>
+        <div class="card">
+          <header><h2>Example packs</h2></header>
+          <div class="body"><div class="grid-cards" id="exampleGrid"></div></div>
+        </div>
+        <div class="card">
+          <header><h2>Templates</h2></header>
+          <div class="body">
+            <p class="prose" style="margin-top:0">The contract every reply must satisfy. Keep them stable — small changes here are big consistency gains.</p>
+            <div class="grid-cards" id="templateGrid"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-wrap">
+        <div class="card">
+          <header><h2 id="viewerTitle">Viewer</h2><span class="spacer"></span>
+            <button class="btn small primary" id="remixBtn" hidden>Remix →</button>
+            <button class="btn small ghost" id="copyViewerBtn">Copy</button>
+          </header>
+          <div class="body">
+            <div class="file-tabs" id="viewerTabs"></div>
+            <pre class="code" id="viewerBody">Select a pack or template on the left.</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SETUP ════════════════════════════════════════════════════════════ -->
+  <section class="panel" id="panel-setup" role="tabpanel" aria-label="Gem setup">
+    <div class="split">
+      <div class="card">
+        <header><h2>Wire up your Gem</h2></header>
+        <div class="body prose">
+          <ol class="steps">
+            <li><b>Create the Gem</b>
+              In Gemini, open <strong>Gems → New Gem</strong> and name it something like <em>Song Architect</em>.</li>
+            <li><b>Paste the instructions</b>
+              Copy the bundle on the right into the Gem's <strong>Instructions</strong> box. That's
+              <code>.gem/role.md</code> + <code>.gem/rules.md</code> + <code>.gem/tasks/song.md</code>, concatenated.</li>
+            <li><b>Attach the house references</b>
+              Upload <code>/templates</code> and a couple of <code>/examples</code> packs as knowledge files,
+              or paste them in the first message. The Gem imitates what it can see.</li>
+            <li><b>Compose and send</b>
+              Build a prompt on the <a href="#compose" data-goto="compose">Compose</a> tab, hit Copy, send it.</li>
+            <li><b>Bring the reply back</b>
+              Paste the response into <a href="#decode" data-goto="decode">Decode</a> to check it against the
+              templates, then save the good ones into <code>examples/</code>.</li>
+          </ol>
+
+          <h3>Why the loop matters</h3>
+          <p>
+            The Gem has no memory of what "good" looks like beyond what you show it. Every pack you save
+            into <code>examples/</code> tightens the house style, so round five is noticeably better than
+            round one. Decode → export → commit is the whole flywheel.</p>
+
+          <h3>Iterating on one file</h3>
+          <p>
+            Deselect files in <strong>Output &amp; constraints</strong> and the prompt switches to iteration
+            mode — it asks for only the files you left checked and tells the Gem to hold everything else
+            fixed. That is how you fix a weak bridge without losing a good hook.</p>
+        </div>
+      </div>
+
+      <div class="preview-wrap">
+        <div class="card">
+          <header><h2>Gem instructions</h2><span class="spacer"></span>
+            <button class="btn small primary" id="copyInstructionsBtn">Copy all</button>
+          </header>
+          <div class="body">
+            <pre class="code" id="instructionsOut"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="assets/data.js"></script>
+<script src="assets/library.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
