@@ -38,7 +38,37 @@ async function copy(text, label) {
   toast((label || 'Copied') + ' → clipboard');
 }
 
-function download(filename, text) {
+/* Hosts that sandbox the page block <a download> outright and mediate saves
+   through a capability instead. Resolve it once; null means we're somewhere
+   ordinary and the anchor works. */
+let downloadsApi;
+async function resolveDownloads() {
+  if (downloadsApi !== undefined) return downloadsApi;
+  try {
+    downloadsApi = window.claude && typeof window.claude.use === 'function'
+      ? await window.claude.use('downloads')
+      : null;
+  } catch (e) {
+    downloadsApi = null;
+  }
+  return downloadsApi;
+}
+
+/** Resolves true if the file was saved, false if it wasn't. Never throws. */
+async function download(filename, text) {
+  const api = await resolveDownloads();
+
+  if (api) {
+    try {
+      await api.save({ filename, data: text });
+      return true;
+    } catch (err) {
+      /* Declining is a normal answer, not a failure worth announcing. */
+      if (!err || err.code !== 'declined') toast('Could not save ' + filename);
+      return false;
+    }
+  }
+
   const url = URL.createObjectURL(new Blob([text], { type: 'text/markdown;charset=utf-8' }));
   const a = document.createElement('a');
   a.href = url;
@@ -47,6 +77,7 @@ function download(filename, text) {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+  return true;
 }
 
 const escapeHtml = (s) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
@@ -700,10 +731,12 @@ function flashPulse() {
 /* ── Wiring ──────────────────────────────────────────────────────────────── */
 
 function init() {
+  /* Only stamp the root when the viewer picked a theme; otherwise leave it to
+     prefers-color-scheme, or to a stamp the host set for us. */
   try {
     const saved = localStorage.getItem(LS_THEME);
-    applyTheme(saved || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
-  } catch (e) { applyTheme('dark'); }
+    if (saved) applyTheme(saved);
+  } catch (e) { /* storage blocked — the media query still applies */ }
 
   fillSelect($('#key'), D.KEYS, state.key);
   fillSelect($('#timeSignature'), D.TIME_SIGNATURES, state.timeSignature);
@@ -779,17 +812,26 @@ function init() {
     $('#slugIn').value = '';
     renderDecode();
   });
-  $('#downloadPackBtn').addEventListener('click', () => {
+  $('#downloadPackBtn').addEventListener('click', async () => {
     const slug = slugify($('#slugIn').value || 'untitled') || 'untitled';
-    let n = 0;
-    D.FILES.forEach((spec, i) => {
-      const body = decoded.files[spec.id];
-      if (!body) return;
-      n++;
-      /* Browsers throttle back-to-back downloads; space them out. */
-      setTimeout(() => download(slug + '--' + spec.id, body + '\n'), i * 220);
+    const files = D.FILES.filter((spec) => decoded.files[spec.id]);
+    if (!files.length) { toast('Nothing to download'); return; }
+
+    if (await resolveDownloads()) {
+      /* Mediated saves prompt one at a time, so go sequentially and stop as
+         soon as the viewer declines rather than stacking more prompts. */
+      for (const spec of files) {
+        const ok = await download(slug + '--' + spec.id, decoded.files[spec.id] + '\n');
+        if (!ok) return;
+      }
+      return;
+    }
+
+    /* Browsers throttle back-to-back downloads; space them out. */
+    files.forEach((spec, i) => {
+      setTimeout(() => download(slug + '--' + spec.id, decoded.files[spec.id] + '\n'), i * 220);
     });
-    toast(n ? 'Downloading ' + n + ' file(s)' : 'Nothing to download');
+    toast('Downloading ' + files.length + ' file(s)');
   });
   $('#copyShellBtn').addEventListener('click', () => copy(packShellCommand(), 'Shell command'));
 
@@ -813,7 +855,9 @@ function init() {
   });
 
   $('#themeToggle').addEventListener('click', () => {
-    applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    const stamped = document.documentElement.getAttribute('data-theme');
+    const current = stamped || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    applyTheme(current === 'dark' ? 'light' : 'dark');
   });
 
   renderRecipes();

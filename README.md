@@ -85,7 +85,11 @@ workflow) and the site goes live at the link above.
 npm run dev      # build the library, serve docs/ at http://localhost:4173
 npm run build    # regenerate docs/assets/library.js + GEM_INSTRUCTIONS.md
 npm run check    # what CI runs: generated files current, examples match templates
+npm run bundle   # inline everything into dist/gem-studio.html, one file, no network
 ```
+
+`npm run bundle -- --artifact` emits the same page without the `<!doctype>`/`<html>`
+shell, for hosts that supply their own.
 
 `docs/` is plain HTML, CSS and classic scripts, so `docs/index.html` also works by
 double-clicking it. There is nothing to install — Node is only used for the two
