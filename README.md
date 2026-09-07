@@ -67,6 +67,18 @@ Everything persists to `localStorage`; **Copy share link** encodes the whole set
 a URL. Keyboard: <kbd>1</kbd>–<kbd>4</kbd> switch tabs, <kbd>T</kbd> taps tempo,
 <kbd>C</kbd> copies the prompt.
 
+## Deploying
+
+`.github/workflows/pages.yml` publishes `docs/` on every push to `main`. It needs
+Pages switched on once, by hand:
+
+**Settings → Pages → Build and deployment → Source: GitHub Actions**
+
+That one-time step can't be automated — creating a Pages site requires
+`administration: write`, which the workflow's `GITHUB_TOKEN` is never granted. Once
+it's on, re-run the *Deploy Gem Studio* workflow (Actions → Deploy Gem Studio → Run
+workflow) and the site goes live at the link above.
+
 ## Local development
 
 ```bash

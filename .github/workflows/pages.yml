@@ -26,11 +26,10 @@ jobs:
         with:
           node-version: '20'
       - run: npm run build
-      # enablement lets the workflow turn Pages on itself, so a fresh clone of
-      # this repo deploys without anyone visiting Settings first.
+      # Pages must already be enabled with Source: GitHub Actions — see README.
+      # configure-pages' `enablement: true` can't do it for us: creating a Pages
+      # site needs administration:write, which GITHUB_TOKEN never gets.
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: docs
