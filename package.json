@@ -1,0 +1,14 @@
+{
+  "name": "gem-song-starter",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Templates, house references and a browser studio for driving a Google Gem that writes song packs.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-library.mjs",
+    "check": "node scripts/build-library.mjs --check && node scripts/validate-packs.mjs",
+    "dev": "npm run build && node scripts/serve.mjs"
+  },
+  "engines": { "node": ">=18" }
+}

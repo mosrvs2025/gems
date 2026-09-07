@@ -21,3 +21,12 @@ When the user asks for a song:
 <<<FILE:cover-art.md>>>
 {cover-art.md content}
 <<<END FILE>>>
+
+## Cover image
+After writing `cover-art.md`, immediately generate the album cover with your image tool — square, 1024×1024 — and display it inline. If image generation is unavailable in the current interface, return the prompt labeled **[IMAGE_PENDING]** so it can be generated elsewhere.
+
+## Iteration requests
+If the request names specific files ("rewrite ONLY lyrics.md", "swap the key to B minor"):
+- Return only those files, in the same fenced format.
+- Keep every other decision frozen. A key change updates `description.md` and any lyric line whose vowels no longer sit well — nothing else.
+- Do not include a diff, a summary of what changed, or the untouched files.
